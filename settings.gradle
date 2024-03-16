@@ -1,0 +1,3 @@
+rootProject.name = "Module_OaId"
+include ':app'
+include ':oaid'
