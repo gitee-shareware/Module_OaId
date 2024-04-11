@@ -8,6 +8,7 @@ import android.content.ServiceConnection
 import android.content.SharedPreferences
 import android.os.IBinder
 import com.shareware.oaid.IOaIdSupport
+import com.shareware.oaid.OaIdGenerator
 
 
 /**
@@ -32,6 +33,7 @@ class GmsOaIdImpl(context: Context, sp: SharedPreferences) : IOaIdSupport {
                             if (!adService.id.isNullOrEmpty()) {
                                 sp.edit().putString("device.oa.id", adService.id).apply()
                             }
+                            OaIdGenerator.notifyOaIdResult(adService.id)
                         } catch (ignore: Throwable) {
                         } finally {
                             context.unbindService(this)

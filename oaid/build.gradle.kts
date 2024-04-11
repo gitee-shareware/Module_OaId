@@ -57,7 +57,8 @@ dependencies {
 uploadArchive {
     groupId = "com.gitee.shareware"
     artifactId = "oaid"
-    version = "1.0.3"
+    version = "1.0.4"
+    mavenUrlOrLocalPath = "/Users/maven/repository"
 }
 
 //tasks.dokkaHtml.configure {

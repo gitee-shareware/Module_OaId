@@ -5,6 +5,7 @@ import android.content.SharedPreferences
 import android.net.Uri
 import android.os.Build
 import com.shareware.oaid.IOaIdSupport
+import com.shareware.oaid.OaIdGenerator
 import com.shareware.oaid.util.sysProperty
 
 /**
@@ -20,10 +21,11 @@ class ViVoOaIdImpl(context: Context, sp: SharedPreferences) : IOaIdSupport {
                 context.contentResolver.query(uri, null, null, null, null)?.use {
                     it.moveToFirst()
                     val columnIndex = it.getColumnIndex("value")
-                    val id = it.getString(columnIndex) ?: return@use
-                    if (id.isNotEmpty()) {
+                    val id = it.getString(columnIndex)
+                    if (!id.isNullOrEmpty()) {
                         sp.edit().putString("device.oa.id", id).apply()
                     }
+                    OaIdGenerator.notifyOaIdResult(id)
                 }
             } catch (ignore: Throwable) {
             }

@@ -8,6 +8,7 @@ import android.content.ServiceConnection
 import android.content.SharedPreferences
 import android.os.IBinder
 import com.shareware.oaid.IOaIdSupport
+import com.shareware.oaid.OaIdGenerator
 
 
 /**
@@ -26,10 +27,11 @@ class LenovoOaIdImpl(context: Context, sp: SharedPreferences) : IOaIdSupport {
                 context.bindService(intent, object : ServiceConnection {
                     override fun onServiceConnected(name: ComponentName, service: IBinder) {
                         try {
-                            val id = IDeviceidInterface.Stub.asInterface(service).oaid ?: return
-                            if (id.isNotEmpty()) {
+                            val id = IDeviceidInterface.Stub.asInterface(service).oaid
+                            if (!id.isNullOrEmpty()) {
                                 sp.edit().putString("device.oa.id", id).apply()
                             }
+                            OaIdGenerator.notifyOaIdResult(id)
                         } catch (ignore: Exception) {
                         } finally {
                             context.unbindService(this)

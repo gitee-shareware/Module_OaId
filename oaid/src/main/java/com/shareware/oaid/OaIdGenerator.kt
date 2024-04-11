@@ -34,6 +34,7 @@ import com.shareware.oaid.util.isOppo
 import com.shareware.oaid.util.isSamsung
 import com.shareware.oaid.util.isViVo
 import com.shareware.oaid.util.isXiaomi
+import java.util.concurrent.CopyOnWriteArrayList
 
 /**
  * desc: 功能描述
@@ -43,7 +44,8 @@ class OaIdGenerator constructor(context: Context) {
     init {
         val applicationContext = context.applicationContext
         val sp = applicationContext.getSharedPreferences("preference.system", Context.MODE_PRIVATE)
-        if (sp.getString("device.oa.id", null).isNullOrEmpty()) {
+        id = sp.getString("device.oa.id", null)
+        if (id.isNullOrEmpty()) {
             when {
                 isHonor() -> {
                     val honorOaIdImpl = HonorOaIdImpl(applicationContext, sp)
@@ -106,6 +108,38 @@ class OaIdGenerator constructor(context: Context) {
                 else -> {
                     GmsOaIdImpl(applicationContext, sp)
                 }
+            }
+        } else {
+            listener.forEach {
+                it.onOAIDGetComplete(id!!)
+            }
+            listener.clear()
+        }
+    }
+
+    companion object {
+        private val listener: CopyOnWriteArrayList<IGetter> = CopyOnWriteArrayList()
+        private var id: String? = null
+
+        fun notifyOaIdResult(id: String?) {
+            if (this.id.isNullOrEmpty()) {
+                this.id = id
+            }
+            if (listener.isNotEmpty()) {
+                listener.forEach {
+                    it.onOAIDGetComplete(this.id ?: "")
+                }
+                listener.clear()
+            }
+        }
+
+        @JvmStatic
+        fun getOaId(context: Context, getter: IGetter) {
+            if (id.isNullOrEmpty()) {
+                listener.add(getter)
+                OaIdGenerator(context)
+            } else {
+                getter.onOAIDGetComplete(id!!)
             }
         }
     }

@@ -4,6 +4,7 @@ import android.app.KeyguardManager
 import android.content.Context
 import android.content.SharedPreferences
 import com.shareware.oaid.IOaIdSupport
+import com.shareware.oaid.OaIdGenerator
 
 
 /**
@@ -22,6 +23,9 @@ class CooSeaOaIdImpl(context: Context, sp: SharedPreferences) : IOaIdSupport {
                         .invoke(keyguardManager)
                     if (id != null) {
                         sp.edit().putString("device.oa.id", id.toString()).apply()
+                        OaIdGenerator.notifyOaIdResult(id.toString())
+                    } else {
+                        OaIdGenerator.notifyOaIdResult(null)
                     }
                 }
             } catch (ignore: Throwable) {

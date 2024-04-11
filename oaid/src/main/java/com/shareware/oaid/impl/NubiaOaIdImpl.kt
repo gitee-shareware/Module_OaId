@@ -5,6 +5,7 @@ import android.content.SharedPreferences
 import android.net.Uri
 import android.os.Build
 import com.shareware.oaid.IOaIdSupport
+import com.shareware.oaid.OaIdGenerator
 
 /**
  * desc: 努比亚 红魔
@@ -29,7 +30,12 @@ class NubiaOaIdImpl(context: Context, sp: SharedPreferences) : IOaIdSupport {
                             if (!id.isNullOrEmpty()) {
                                 sp.edit().putString("device.oa.id", id).apply()
                             }
+                            OaIdGenerator.notifyOaIdResult(id)
+                        } else {
+                            OaIdGenerator.notifyOaIdResult(null)
                         }
+                    } else {
+                        OaIdGenerator.notifyOaIdResult(null)
                     }
                 }
             } catch (ignore: Throwable) {

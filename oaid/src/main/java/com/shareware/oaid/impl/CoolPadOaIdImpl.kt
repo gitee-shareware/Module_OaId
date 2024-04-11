@@ -8,6 +8,7 @@ import android.content.ServiceConnection
 import android.content.SharedPreferences
 import android.os.IBinder
 import com.shareware.oaid.IOaIdSupport
+import com.shareware.oaid.OaIdGenerator
 
 
 /**
@@ -27,10 +28,11 @@ class CoolPadOaIdImpl(context: Context, sp: SharedPreferences) : IOaIdSupport {
                     override fun onServiceConnected(name: ComponentName, service: IBinder) {
                         try {
                             val id = IDeviceIdManager.Stub.asInterface(service)
-                                .getOAID(context.packageName) ?: return
-                            if (id.isNotEmpty()) {
+                                .getOAID(context.packageName)
+                            if (!id.isNullOrEmpty()) {
                                 sp.edit().putString("device.oa.id", id).apply()
                             }
+                            OaIdGenerator.notifyOaIdResult(id)
                         } catch (ignore: Throwable) {
                         } finally {
                             context.unbindService(this)

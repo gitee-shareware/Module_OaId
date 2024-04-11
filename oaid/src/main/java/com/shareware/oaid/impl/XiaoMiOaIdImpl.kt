@@ -3,6 +3,7 @@ package com.shareware.oaid.impl
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.SharedPreferences
+import com.shareware.oaid.OaIdGenerator
 
 class XiaoMiOaIdImpl(context: Context, sp: SharedPreferences) {
 
@@ -21,6 +22,7 @@ class XiaoMiOaIdImpl(context: Context, sp: SharedPreferences) {
             if (!id.isNullOrEmpty()) {
                 sp.edit().putString("device.oa.id", id).apply()
             }
+            OaIdGenerator.notifyOaIdResult(id)
         } catch (ignore: Throwable) {
         }
     }

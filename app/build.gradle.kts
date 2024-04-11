@@ -77,4 +77,5 @@ dependencies {
     implementation("${DependenciesScope.android.androidConstraint}")
     implementation("${DependenciesScope.android.androidMultidex}")
     implementation("${DependenciesScope.lib.okhttp3LoggingInterceptor}")
+    implementation(project(":oaid"))
 }

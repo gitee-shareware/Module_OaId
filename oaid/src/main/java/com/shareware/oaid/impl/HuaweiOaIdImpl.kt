@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.SharedPreferences
 import com.huawei.hms.ads.identifier.AdvertisingIdClient
 import com.shareware.oaid.IOaIdSupport
+import com.shareware.oaid.OaIdGenerator
 import java.util.concurrent.Executors
 
 
@@ -24,6 +25,9 @@ class HuaweiOaIdImpl(context: Context, sp: SharedPreferences) : IOaIdSupport {
                         if (!info.id.isNullOrEmpty()) {
                             sp.edit().putString("device.oa.id", info.id).apply()
                         }
+                        OaIdGenerator.notifyOaIdResult(info.id)
+                    } else {
+                        OaIdGenerator.notifyOaIdResult(null)
                     }
                 } catch (ignore: Exception) {
                 }

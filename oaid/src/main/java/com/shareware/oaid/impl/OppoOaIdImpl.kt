@@ -11,6 +11,7 @@ import android.content.pm.PackageManager
 import android.content.pm.Signature
 import android.os.IBinder
 import com.shareware.oaid.IOaIdSupport
+import com.shareware.oaid.OaIdGenerator
 import java.security.MessageDigest
 
 
@@ -28,10 +29,11 @@ class OppoOaIdImpl(context: Context, sp: SharedPreferences) : IOaIdSupport {
                 context.bindService(intent, object : ServiceConnection {
                     override fun onServiceConnected(name: ComponentName, service: IBinder) {
                         try {
-                            val id = getSerId(service, context) ?: return
-                            if (id.isNotEmpty()) {
+                            val id = getSerId(service, context)
+                            if (!id.isNullOrEmpty()) {
                                 sp.edit().putString("device.oa.id", id).apply()
                             }
+                            OaIdGenerator.notifyOaIdResult(id)
                         } catch (ignore: Exception) {
                         } finally {
                             context.unbindService(this)
