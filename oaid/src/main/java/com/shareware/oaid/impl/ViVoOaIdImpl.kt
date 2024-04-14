@@ -18,17 +18,25 @@ class ViVoOaIdImpl(context: Context, sp: SharedPreferences) : IOaIdSupport {
         if (supported(context)) {
             try {
                 val uri = Uri.parse("content://com.vivo.vms.IdProvider/IdentifierId/OAID")
-                context.contentResolver.query(uri, null, null, null, null)?.use {
-                    it.moveToFirst()
-                    val columnIndex = it.getColumnIndex("value")
-                    val id = it.getString(columnIndex)
-                    if (!id.isNullOrEmpty()) {
-                        sp.edit().putString("device.oa.id", id).apply()
+                val query = context.contentResolver.query(uri, null, null, null, null)
+                if (query != null) {
+                    query.use {
+                        it.moveToFirst()
+                        val columnIndex = it.getColumnIndex("value")
+                        val id = it.getString(columnIndex)
+                        if (!id.isNullOrEmpty()) {
+                            sp.edit().putString("device.oa.id", id).apply()
+                        }
+                        OaIdGenerator.notifyOaIdResult(id, true)
                     }
-                    OaIdGenerator.notifyOaIdResult(id)
+                } else {
+                    OaIdGenerator.notifyOaIdResult(null, true)
                 }
-            } catch (ignore: Throwable) {
+            } catch (error: Throwable) {
+                OaIdGenerator.notifyOaIdResult(error.message, false)
             }
+        } else {
+            OaIdGenerator.notifyOaIdResult("not support ViVo, ${Build.MODEL}", false)
         }
     }
 

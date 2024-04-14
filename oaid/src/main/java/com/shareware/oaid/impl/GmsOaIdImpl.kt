@@ -6,6 +6,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.ServiceConnection
 import android.content.SharedPreferences
+import android.os.Build
 import android.os.IBinder
 import com.shareware.oaid.IOaIdSupport
 import com.shareware.oaid.OaIdGenerator
@@ -24,17 +25,22 @@ class GmsOaIdImpl(context: Context, sp: SharedPreferences) : IOaIdSupport {
                 context.bindService(intent, object : ServiceConnection {
                     override fun onServiceConnected(name: ComponentName, service: IBinder) {
                         try {
-                            val adService =
-                                IAdvertisingIdService.Stub.asInterface(service) ?: return
+                            val adService = IAdvertisingIdService.Stub.asInterface(service)
+                            if (adService == null) {
+                                OaIdGenerator.notifyOaIdResult(null, true)
+                                return
+                            }
                             if (adService.isLimitAdTrackingEnabled(true)) {
                                 // 实测在系统设置中停用了广告化功能也是能获取到广告标识符的
+                                OaIdGenerator.notifyOaIdResult(null, true)
                                 return
                             }
                             if (!adService.id.isNullOrEmpty()) {
                                 sp.edit().putString("device.oa.id", adService.id).apply()
                             }
-                            OaIdGenerator.notifyOaIdResult(adService.id)
-                        } catch (ignore: Throwable) {
+                            OaIdGenerator.notifyOaIdResult(adService.id, true)
+                        } catch (error: Throwable) {
+                            OaIdGenerator.notifyOaIdResult(error.message, false)
                         } finally {
                             context.unbindService(this)
                         }
@@ -43,8 +49,11 @@ class GmsOaIdImpl(context: Context, sp: SharedPreferences) : IOaIdSupport {
                     override fun onServiceDisconnected(name: ComponentName) = Unit
 
                 }, Context.BIND_AUTO_CREATE)
-            } catch (ignore: Throwable) {
+            } catch (error: Throwable) {
+                OaIdGenerator.notifyOaIdResult(error.message, false)
             }
+        } else {
+            OaIdGenerator.notifyOaIdResult("not support Gms, ${Build.BRAND} ${Build.MODEL}", false)
         }
     }
 

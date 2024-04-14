@@ -34,6 +34,7 @@ import com.shareware.oaid.util.isOppo
 import com.shareware.oaid.util.isSamsung
 import com.shareware.oaid.util.isViVo
 import com.shareware.oaid.util.isXiaomi
+import java.lang.ref.WeakReference
 import java.util.concurrent.CopyOnWriteArrayList
 
 /**
@@ -111,32 +112,48 @@ class OaIdGenerator constructor(context: Context) {
             }
         } else {
             listener.forEach {
-                it.onOAIDGetComplete(id!!)
+                it.get()?.onOAIDGetComplete(id!!)
             }
             listener.clear()
         }
     }
 
     companion object {
-        private val listener: CopyOnWriteArrayList<IGetter> = CopyOnWriteArrayList()
+        private val listener: CopyOnWriteArrayList<WeakReference<IGetter>> = CopyOnWriteArrayList()
         private var id: String? = null
 
-        fun notifyOaIdResult(id: String?) {
-            if (this.id.isNullOrEmpty()) {
-                this.id = id
-            }
-            if (listener.isNotEmpty()) {
-                listener.forEach {
-                    it.onOAIDGetComplete(this.id ?: "")
+        internal fun notifyOaIdResult(result: String?, success: Boolean) {
+            if (success) {
+                //防止外部恶意调用此方法
+                if (this.id.isNullOrEmpty() && !result.isNullOrEmpty()) {
+                    this.id = result
                 }
-                listener.clear()
+                if (listener.isNotEmpty()) {
+                    listener.forEach {
+                        try {
+                            it.get()?.onOAIDGetComplete(this.id ?: "")
+                        } catch (ignore: Exception) {
+                        }
+                    }
+                    listener.clear()
+                }
+            } else {
+                if (listener.isNotEmpty()) {
+                    listener.forEach {
+                        try {
+                            it.get()?.onOAIDGetError(Exception(result))
+                        } catch (ignore: Exception) {
+                        }
+                    }
+                    listener.clear()
+                }
             }
         }
 
         @JvmStatic
         fun getOaId(context: Context, getter: IGetter) {
             if (id.isNullOrEmpty()) {
-                listener.add(getter)
+                listener.add(WeakReference(getter))
                 OaIdGenerator(context)
             } else {
                 getter.onOAIDGetComplete(id!!)

@@ -22,4 +22,8 @@ class MainActivity : AppCompatActivity(), IGetter {
     override fun onOAIDGetComplete(result: String) {
         Log.d("MainActivity", "onOAIDGetComplete: $result")
     }
+
+    override fun onOAIDGetError(error: Exception) {
+        Log.d("MainActivity", "onOAIDGetError: ${error.message}")
+    }
 }

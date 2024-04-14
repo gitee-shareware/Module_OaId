@@ -21,6 +21,11 @@ public class TestActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         OaIdGenerator.Companion.getOaId(this, new IGetter() {
             @Override
+            public void onOAIDGetError(@NonNull Exception error) {
+                Log.d("TestActivity", "onOAIDGetComplete: " + error.getMessage());
+            }
+
+            @Override
             public void onOAIDGetComplete(@NonNull String result) {
                 Log.d("TestActivity", "onOAIDGetComplete: " + result);
             }

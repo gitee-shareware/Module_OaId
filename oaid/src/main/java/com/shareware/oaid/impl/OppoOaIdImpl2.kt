@@ -9,6 +9,7 @@ import android.content.ServiceConnection
 import android.content.SharedPreferences
 import android.content.pm.PackageManager
 import android.content.pm.Signature
+import android.os.Build
 import android.os.IBinder
 import com.shareware.oaid.IOaIdSupport
 import com.shareware.oaid.OaIdGenerator
@@ -33,8 +34,9 @@ class OppoOaIdImpl2(context: Context, sp: SharedPreferences) : IOaIdSupport {
                             if (!id.isNullOrEmpty()) {
                                 sp.edit().putString("device.oa.id", id).apply()
                             }
-                            OaIdGenerator.notifyOaIdResult(id)
-                        } catch (ignore: Exception) {
+                            OaIdGenerator.notifyOaIdResult(id, true)
+                        } catch (error: Exception) {
+                            OaIdGenerator.notifyOaIdResult(error.message, false)
                         } finally {
                             context.unbindService(this)
                         }
@@ -43,10 +45,12 @@ class OppoOaIdImpl2(context: Context, sp: SharedPreferences) : IOaIdSupport {
                     override fun onServiceDisconnected(name: ComponentName) = Unit
 
                 }, Context.BIND_AUTO_CREATE)
-            } catch (ignore: Throwable) {
+            } catch (error: Throwable) {
+                OaIdGenerator.notifyOaIdResult(error.message, false)
             }
+        } else {
+            OaIdGenerator.notifyOaIdResult("not support onePlus, ${Build.MODEL}", false)
         }
-
     }
 
     @SuppressLint("PackageManagerGetSignatures")

@@ -6,6 +6,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.ServiceConnection
 import android.content.SharedPreferences
+import android.os.Build
 import android.os.IBinder
 import com.shareware.oaid.IOaIdSupport
 import com.shareware.oaid.OaIdGenerator
@@ -31,8 +32,9 @@ class SamSungOaIdImpl(context: Context, sp: SharedPreferences) : IOaIdSupport {
                             if (!id.isNullOrEmpty()) {
                                 sp.edit().putString("device.oa.id", id).apply()
                             }
-                            OaIdGenerator.notifyOaIdResult(id)
-                        } catch (ignore: Exception) {
+                            OaIdGenerator.notifyOaIdResult(id, true)
+                        } catch (error: Exception) {
+                            OaIdGenerator.notifyOaIdResult(error.message, false)
                         } finally {
                             context.unbindService(this)
                         }
@@ -41,8 +43,11 @@ class SamSungOaIdImpl(context: Context, sp: SharedPreferences) : IOaIdSupport {
                     override fun onServiceDisconnected(name: ComponentName) = Unit
 
                 }, Context.BIND_AUTO_CREATE)
-            } catch (ignore: Throwable) {
+            } catch (error: Throwable) {
+                OaIdGenerator.notifyOaIdResult(error.message, false)
             }
+        } else {
+            OaIdGenerator.notifyOaIdResult("not support SamSung, ${Build.MODEL}", false)
         }
     }
 

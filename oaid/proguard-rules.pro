@@ -22,6 +22,13 @@
 -keeppackagenames com.shareware.oaid.**
 -keep class com.shareware.oaid.OaIdGenerator{
     public <init>(android.content.Context);
+    public static getOaId(android.content.Context,com.shareware.oaid.IGetter);
+    public static com.shareware.oaid.OaIdGenerator$Companion Companion;
+}
+-keep interface com.shareware.oaid.IGetter{*;}
+
+-keep class com.shareware.oaid.OaIdGenerator$Companion{
+    public void getOaId(android.content.Context,com.shareware.oaid.IGetter);
 }
 
 -keep class aidl.android.creator.** { *; }

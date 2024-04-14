@@ -57,7 +57,7 @@ dependencies {
 uploadArchive {
     groupId = "com.gitee.shareware"
     artifactId = "oaid"
-    version = "1.0.4"
+    version = "1.0.5"
     mavenUrlOrLocalPath = "/Users/maven/repository"
 }
 

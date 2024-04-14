@@ -13,6 +13,10 @@ import com.shareware.oaid.OaIdGenerator
  */
 class NubiaOaIdImpl(context: Context, sp: SharedPreferences) : IOaIdSupport {
     init {
+        fetchOaId(context, sp)
+    }
+
+    private fun fetchOaId(context: Context, sp: SharedPreferences) {
         if (supported(context)) {
             try {
                 val uri = Uri.parse("content://cn.nubia.identity/identity")
@@ -30,18 +34,20 @@ class NubiaOaIdImpl(context: Context, sp: SharedPreferences) : IOaIdSupport {
                             if (!id.isNullOrEmpty()) {
                                 sp.edit().putString("device.oa.id", id).apply()
                             }
-                            OaIdGenerator.notifyOaIdResult(id)
-                        } else {
-                            OaIdGenerator.notifyOaIdResult(null)
+                            OaIdGenerator.notifyOaIdResult(id, true)
+                            return
                         }
-                    } else {
-                        OaIdGenerator.notifyOaIdResult(null)
                     }
                 }
-            } catch (ignore: Throwable) {
+                OaIdGenerator.notifyOaIdResult(null, true)
+            } catch (error: Throwable) {
+                OaIdGenerator.notifyOaIdResult(error.message, false)
             }
+        } else {
+            OaIdGenerator.notifyOaIdResult("not support Nubia, ${Build.MODEL}", false)
         }
     }
+
 
     override fun supported(context: Context): Boolean {
         return Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q;

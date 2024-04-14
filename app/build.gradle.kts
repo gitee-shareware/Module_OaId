@@ -1,4 +1,5 @@
 import com.android.plugin.version.lib
+import com.android.plugin.version.versions
 import com.shareware.versions.DependenciesScope
 
 plugins {
@@ -77,5 +78,6 @@ dependencies {
     implementation("${DependenciesScope.android.androidConstraint}")
     implementation("${DependenciesScope.android.androidMultidex}")
     implementation("${DependenciesScope.lib.okhttp3LoggingInterceptor}")
+    implementation("${DependenciesScope.lib.oaId versions "1.0.5"}")
     implementation(project(":oaid"))
 }

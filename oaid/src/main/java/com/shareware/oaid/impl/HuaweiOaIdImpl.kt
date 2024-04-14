@@ -2,6 +2,7 @@ package com.shareware.oaid.impl
 
 import android.content.Context
 import android.content.SharedPreferences
+import android.os.Build
 import com.huawei.hms.ads.identifier.AdvertisingIdClient
 import com.shareware.oaid.IOaIdSupport
 import com.shareware.oaid.OaIdGenerator
@@ -25,13 +26,16 @@ class HuaweiOaIdImpl(context: Context, sp: SharedPreferences) : IOaIdSupport {
                         if (!info.id.isNullOrEmpty()) {
                             sp.edit().putString("device.oa.id", info.id).apply()
                         }
-                        OaIdGenerator.notifyOaIdResult(info.id)
+                        OaIdGenerator.notifyOaIdResult(info.id, true)
                     } else {
-                        OaIdGenerator.notifyOaIdResult(null)
+                        OaIdGenerator.notifyOaIdResult(null, true)
                     }
-                } catch (ignore: Exception) {
+                } catch (error: Exception) {
+                    OaIdGenerator.notifyOaIdResult(error.message, false)
                 }
             }
+        } else {
+            OaIdGenerator.notifyOaIdResult("not support Huawei, ${Build.MODEL}", false)
         }
     }
 

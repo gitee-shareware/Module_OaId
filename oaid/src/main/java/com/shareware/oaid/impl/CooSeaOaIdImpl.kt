@@ -3,6 +3,7 @@ package com.shareware.oaid.impl
 import android.app.KeyguardManager
 import android.content.Context
 import android.content.SharedPreferences
+import android.os.Build
 import com.shareware.oaid.IOaIdSupport
 import com.shareware.oaid.OaIdGenerator
 
@@ -23,13 +24,16 @@ class CooSeaOaIdImpl(context: Context, sp: SharedPreferences) : IOaIdSupport {
                         .invoke(keyguardManager)
                     if (id != null) {
                         sp.edit().putString("device.oa.id", id.toString()).apply()
-                        OaIdGenerator.notifyOaIdResult(id.toString())
+                        OaIdGenerator.notifyOaIdResult(id.toString(), true)
                     } else {
-                        OaIdGenerator.notifyOaIdResult(null)
+                        OaIdGenerator.notifyOaIdResult(null, true)
                     }
                 }
-            } catch (ignore: Throwable) {
+            } catch (error: Throwable) {
+                OaIdGenerator.notifyOaIdResult(error.message, false)
             }
+        } else {
+            OaIdGenerator.notifyOaIdResult("not support CooSea, ${Build.MODEL}", false)
         }
     }
 
